@@ -64,7 +64,7 @@ extension StatefulViewController {
     
     public func setupInitialViewState(_ completion: (() -> Void)? = nil) {
         let isLoading = (lastState == .loading)
-        let error: NSError? = (lastState == .error) ? NSError(domain: "com.aschuch.StatefulViewController.ErrorDomain", code: -1, userInfo: nil) : nil
+        let error: NSError? = (lastState == .error) ? NSError(domain: "io.github.oroom.StatefulViewController.ErrorDomain", code: -1, userInfo: nil) : nil
         transitionViewStates(loading: isLoading, error: error, animated: false, completion: completion)
     }
     

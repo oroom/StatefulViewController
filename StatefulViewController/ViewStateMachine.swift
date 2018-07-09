@@ -33,7 +33,7 @@ public func == (lhs: ViewStateMachineState, rhs: ViewStateMachineState) -> Bool 
 ///
 public class ViewStateMachine {
     fileprivate var viewStore: [String: UIView]
-    fileprivate let queue = DispatchQueue(label: "com.aschuch.viewStateMachine.queue", attributes: [])
+    fileprivate let queue = DispatchQueue(label: "io.github.oroom.viewStateMachine.queue", attributes: [])
 
     /// An invisible container view that gets added to the view.
     /// The placeholder views will be added to the containerView.
@@ -175,31 +175,19 @@ public class ViewStateMachine {
             newView.translatesAutoresizingMaskIntoConstraints = false
             containerView.addSubview(newView)
 
-            if #available(iOS 11.0, *) {
-                let safeAreaLayoutGuide = containerView.safeAreaLayoutGuide
-                
-                newView.rightAnchor
-                    .constraint(equalTo: safeAreaLayoutGuide.rightAnchor)
-                    .isActive = true
-                newView.leftAnchor
-                    .constraint(equalTo: safeAreaLayoutGuide.leftAnchor)
-                    .isActive = true
-                newView.topAnchor
-                    .constraint(equalTo: safeAreaLayoutGuide.topAnchor)
-                    .isActive = true
-                newView.bottomAnchor
-                    .constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
-                    .isActive = true
-            } else {
-                let insets = (newView as? StatefulPlaceholderView)?.placeholderViewInsets() ?? UIEdgeInsets()
-                let metrics = ["top": insets.top, "bottom": insets.bottom, "left": insets.left, "right": insets.right]
-                let views = ["view": newView]
-                
-                let hConstraints = NSLayoutConstraint.constraints(withVisualFormat: "|-left-[view]-right-|", options: [], metrics: metrics, views: views)
-                let vConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|-top-[view]-bottom-|", options: [], metrics: metrics, views: views)
-                containerView.addConstraints(hConstraints)
-                containerView.addConstraints(vConstraints)
-            }
+            let insets = (newView as? StatefulPlaceholderView)?.placeholderViewInsets() ?? UIEdgeInsets()
+            newView.rightAnchor
+                .constraint(equalTo: containerView.rightAnchor, constant: insets.right)
+                .isActive = true
+            newView.leftAnchor
+                .constraint(equalTo: containerView.leftAnchor, constant: insets.left)
+                .isActive = true
+            newView.topAnchor
+                .constraint(equalTo: containerView.topAnchor, constant: insets.top)
+                .isActive = true
+            newView.bottomAnchor
+                .constraint(equalTo: containerView.bottomAnchor, constant: insets.bottom)
+                .isActive = true
 		}
 
 		let animations: () -> () = {
