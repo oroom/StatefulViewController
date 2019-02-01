@@ -52,7 +52,7 @@ public class ViewStateMachine {
     }()
 
     /// The view that should act as the superview for any added views
-    public let view: UIView
+    public weak var view: UIView?
     
     /// The current display state of views
     public fileprivate(set) var currentState: ViewStateMachineState = .none
@@ -131,18 +131,18 @@ public class ViewStateMachine {
         lastState = state
         
         queue.async { [weak self] in
-            guard let strongSelf = self else { return }
-
-            if state == strongSelf.currentState {
+            guard let self = self else { return }
+            
+            if state == self.currentState {
                 return
             }
             
             // Suspend the queue, it will be resumed in the completion block
-            strongSelf.queue.suspend()
-            strongSelf.currentState = state
+            self.queue.suspend()
+            self.currentState = state
             
             let c: () -> () = {
-                strongSelf.queue.resume()
+                self.queue.resume()
                 completion?()
             }
             
@@ -150,9 +150,9 @@ public class ViewStateMachine {
             DispatchQueue.main.sync {
                 switch state {
                 case .none:
-                    strongSelf.hideAllViews(animated: animated, completion: c)
+                    self.hideAllViews(animated: animated, completion: c)
                 case .view(let viewKey):
-                    strongSelf.showView(forKey: viewKey, animated: animated, completion: c)
+                    self.showView(forKey: viewKey, animated: animated, completion: c)
                 }
             }
         }
@@ -163,6 +163,10 @@ public class ViewStateMachine {
     
 	fileprivate func showView(forKey state: String, animated: Bool, completion: (() -> ())? = nil) {
         // Add the container view
+        guard let view = view else {
+            return
+        }
+        
         containerView.frame = view.bounds
         view.addSubview(containerView)
 
